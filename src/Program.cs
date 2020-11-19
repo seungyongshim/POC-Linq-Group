@@ -2,39 +2,34 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-var persons = new List<Person>()
+static Photo ExceptFunc(Photo a) => a.Id switch
 {
-    new Person("hong", new List<Photo>
-    {
-        new Photo(1),
-        new Photo(2),
-        new Photo(3),
-    }),
-    new Person("hwang", new List<Photo>
-    {
-        new Photo(12),
-        new Photo(22),
-        new Photo(32),
-    }),
+    3 => throw new Exception("에러"),
+    _ => a,
 };
 
-var query = from person in persons
-            from photo in person.Photos
+var query = from id in Enumerable.Range(1, 10)
+            let photo = new Photo(id)
             from photoWillDispose in photo.Use()
-            where photoWillDispose.Id != 22
+            where photoWillDispose.Id != 5 &&
+                  photoWillDispose.Id != 7
             select photoWillDispose;
 
 foreach (var item in query)
 {
-    Console.WriteLine(item);
+    try
+    {
+        Console.WriteLine(ExceptFunc(item));
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex);
+    }
 }
-
-
-public record Person(string Name, List<Photo> Photos);
 
 public record Photo(int Id) : IDisposable
 {
-    public void Dispose() { }
+    public void Dispose() => Console.WriteLine($"Disposed {this}"); 
 }
 
 public static class Extensions
@@ -47,7 +42,6 @@ public static class Extensions
         }
         finally
         {
-            Console.WriteLine($"Disposed {obj}");
             obj?.Dispose();
         }
     }
