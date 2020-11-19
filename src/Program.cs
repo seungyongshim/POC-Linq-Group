@@ -2,12 +2,6 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-static Photo ExceptFunc(Photo a) => a.Id switch
-{
-    3 => throw new Exception("에러"),
-    _ => a,
-};
-
 var query = from id in Enumerable.Range(1, 10)
             let photo = new Photo(id)
             from photoWillDispose in photo.Use()
@@ -26,6 +20,13 @@ foreach (var item in query)
         Console.WriteLine(ex);
     }
 }
+
+static Photo ExceptFunc(Photo a) => a.Id switch
+{
+    3 => throw new Exception($"{a}"),
+    _ => a,
+};
+
 
 public record Photo(int Id) : IDisposable
 {
